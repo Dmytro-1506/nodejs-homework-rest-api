@@ -2,14 +2,11 @@ const mongoose = require("mongoose");
 
 const app = require('./app');
 
-const DB_HOST = "mongodb+srv://Shamid:p6HIC2bDcmelv18I@cluster0.pin9fr6.mongodb.net/";
+const DB_HOST = "mongodb+srv://Shamid:p6HIC2bDcmelv18I@cluster0.pin9fr6.mongodb.net/db-contacts";
 
-// mongoose.set('srtictQuery', true);
-
-mongoose.connect(DB_HOST).then(() => {
-  app.listen(3000);
-  console.log("Database connection successful");
-}).catch(error => {
+mongoose.connect(DB_HOST)
+  .then(() => app.listen(3000, () => console.log("Database connection successful")))
+  .catch(error => {
   console.log(error.message);
   process.exit(1);
 });
