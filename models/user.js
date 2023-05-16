@@ -1,20 +1,20 @@
 const { Schema, model } = require("mongoose");
 
-// const emaiRegexp = /^\w+();
-
 const userSchema = new Schema({
-    name: {
+    password: {
         type: String,
-        required: true,
+        required: [true, 'Set password for user'],
     },
     email: {
         type: String,
-        required: true,
+        required: [true, 'Email is required'],
+        unique: true,
     },
-    password: {
+    subscription: {
         type: String,
-        minlength: 6,
-        required: true,
-    }
+        enum: ["starter", "pro", "business"],
+        default: "starter"
+    },
+    token: String
 }, { versionKey: false, timestamps: true });
 
