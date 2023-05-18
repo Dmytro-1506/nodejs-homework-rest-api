@@ -1,31 +1,31 @@
 const express = require('express');
-const contacts = require("../../controllers/contacts")
+const contacts = require("../../controllers/contacts");
+const { authenticate, isValidId } = require('../../middlewares');
 
 const router = express.Router()
 
-router.get('/', (req, res) => {
-  console.log(contacts.getAll);
-  contacts.getAll(req, res);
+router.get('/', authenticate, (req, res, next) => {
+  contacts.getAll(req, res, next);
 })
 
-router.get('/:contactId', (req, res) => {
-  contacts.getById(req, res);
+router.get('/:contactId', authenticate, isValidId, (req, res, next) => {
+  contacts.getById(req, res, next);
 });
 
-router.post('/', (req, res) => {
-  contacts.addContact(req, res);
+router.post('/', authenticate, (req, res, next) => {
+  contacts.addContact(req, res, next);
 })
 
-router.delete('/:contactId', (req, res) => {
-  contacts.removeContact(req, res);
+router.delete('/:contactId', authenticate, isValidId, (req, res, next) => {
+  contacts.removeContact(req, res, next);
 })
 
-router.put('/:contactId', (req, res) => {
-  contacts.updateContact(req, res);
+router.put('/:contactId', authenticate, isValidId, (req, res, next) => {
+  contacts.updateContact(req, res, next);
 })
 
-router.patch('/:id/favorite', (req, res) => {
-  contacts.updateStatusContact(req, res);
+router.patch('/:id/favorite', authenticate, isValidId, (req, res, next) => {
+  contacts.updateStatusContact(req, res, next);
 })
 
 module.exports = router

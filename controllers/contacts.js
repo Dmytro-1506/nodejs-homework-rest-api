@@ -14,7 +14,10 @@ const bookUpdateFavoriteSchema = Joi.object({
 });
 
 const getAll = async (req, res) => {
-    const result = await Contact.find();
+    const { _id: owner } = req.user;
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+    const result = await Contact.find({owner}, "-createdAt -updatedAt", {skip, limit}).populate("owner", "email");
     res.json(result);
 };
 
@@ -32,7 +35,8 @@ const addContact = async (req, res) => {
     if (error) {
         return RequestError(400, "missing required name field")
     };
-    const result = await Contact.create(req.body);
+    const { _id: owner } = req.user;
+    const result = await Contact.create({...req.body, owner});
     res.status(201).json(result);
 };
 
@@ -64,7 +68,7 @@ const updateContact = async (req, res) => {
 const updateStatusContact = async (req, res) => {
     const { error } = bookUpdateFavoriteSchema.validate(req.body)
     if (error) {
-        throw RequestError(400, { "message": "missing field favorite" })
+        throw RequestError(400, "missing field favorite")
     }
     const { id } = req.params
     const result = await Contact.findByIdAndUpdate(id, req.body, { new: true })
