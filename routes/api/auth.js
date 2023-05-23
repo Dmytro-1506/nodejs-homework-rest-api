@@ -1,15 +1,17 @@
 const express = require("express");
-const auth = require("../../controllers/auth");
-const { authenticate } = require("../../middlewares");
+const user = require("../../controllers/auth");
+const { authenticate, upload } = require("../../middlewares");
 
 const router = express.Router();
 
-router.post("/register", auth.register);
+router.post("/register", user.register);
 
-router.post("/login", auth.login)
+router.post("/login", user.login)
 
-router.post("/logout", authenticate, auth.logout);
+router.post("/logout", authenticate, user.logout);
 
-router.get("/current", authenticate, auth.getCurrent)
+router.get("/current", authenticate, user.getCurrent);
+
+router.patch("/avatars", authenticate, upload.single("avatar"), user.updateAvatar);
 
 module.exports = router;

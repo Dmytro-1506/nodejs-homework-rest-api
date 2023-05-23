@@ -2,10 +2,15 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User, authSchema } = require("../models/user");
 const { RequestError, ctrlWrapper } = require("../helpers");
+const gravatar = require("gravatar");
+const path = require("path");
+const fs = require("fs/promises");
 
 require('dotenv').config()
 
 const { SECRET_KEY } = process.env;
+
+const avatarsDir = path.join(__dirname, "../", "public", "avatars");
 
 const register = async (req, res, next) => {
     const { error } = authSchema.validate(req.body);
@@ -19,9 +24,10 @@ const register = async (req, res, next) => {
         throw RequestError(409, "Email in use")
     }
 
+    const avatarURL = gravatar.url(email);
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({...req.body, password: hashPassword});
+    const newUser = await User.create({...req.body, password: hashPassword, avatarURL});
 
     res.status(201).json({
         user: {
@@ -84,9 +90,23 @@ const getCurrent = async (req, res, next) => {
     })
 }
 
+const updateAvatar = async (req, res, next) => {
+    const { _id } = req.user;
+    const { path: tmpDir, originalname } = req.file;
+    const resultUpload = path.join(avatarsDir, originalname);
+    await fs.rename(tmpDir, resultUpload);
+    const avatarURL = path.join("avatars", originalname);
+    await User.findByIdAndUpdate(_id, { avatarURL });
+
+    res.json({
+        avatarURL,
+    })
+};
+
 module.exports = {
     register: ctrlWrapper(register),
     login: ctrlWrapper(login),
     logout: ctrlWrapper(logout),
     getCurrent: ctrlWrapper(getCurrent),
+    updateAvatar: ctrlWrapper(updateAvatar),
 }
